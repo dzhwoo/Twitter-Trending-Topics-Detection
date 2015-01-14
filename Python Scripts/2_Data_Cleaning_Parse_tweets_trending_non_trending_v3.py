@@ -12,9 +12,14 @@ from datetime import datetime
 import re
 import csv
 
-loc_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_combined_20150110.csv"
-loc_trending_topics = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\trending_topics_20150109_20150111.csv"
-loc_output_trending_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned.csv" # will be created
+loc_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\sample_combined_20150113.csv"
+loc_tweets_list = [
+"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\sample_combined_20150111.csv",
+"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\sample_combined_20150112.csv",
+"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\sample_combined_20150113.csv"]
+
+loc_trending_topics = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\trending_topics_2015_0111_0112_0113.csv"
+loc_output_trending_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\sample_trending_tweets_2015_0111_0112_0113_cleaned.csv" # will be created
 #loc_output_nontrending_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Data\\Tweets\\Combined\\nontrending_tweets_20141224_cleaned.csv"
 #loc_output_remaining_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\0106_0107\\remaining_tweets_20150106_cleaned.csv"
 
@@ -130,12 +135,13 @@ def reduce_data(loc_tweets, loc_trending_topics, loc_output_trending_tweets):
         #progress, this roughtly equal to every 10min file of tweets
         # each file is 20000 rows
         # each day has 100 files
-        total_files_per_day = 50
+        total_files_per_day = 110
         total_rows_per_file = 20000
+        time_to_process_each_file = 2
 
         if index_count % 20000 == 0:
-            estimated_remaning_rows = 50*20000 - index_count
-            estimated_time_remaining = estimated_remaning_rows/total_rows_per_file * 10
+            estimated_remaning_rows = total_files_per_day * 20000 - index_count
+            estimated_time_remaining = estimated_remaning_rows/total_rows_per_file * time_to_process_each_file
             print index_count, reduced, datetime.now() - start
             print estimated_remaning_rows,estimated_time_remaining
   #print e, reduced, datetime.now() - start
@@ -143,4 +149,5 @@ def reduce_data(loc_tweets, loc_trending_topics, loc_output_trending_tweets):
 
 if __name__ == '__main__':
     #main()
-    reduce_data(loc_tweets, loc_trending_topics, loc_output_trending_tweets)
+    for index, val in enumerate(loc_tweets_list):
+        reduce_data(val, loc_trending_topics, loc_output_trending_tweets)

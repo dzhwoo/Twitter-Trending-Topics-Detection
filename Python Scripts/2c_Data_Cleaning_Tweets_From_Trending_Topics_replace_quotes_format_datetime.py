@@ -33,16 +33,20 @@ def openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr):
 def openfileandfindreformatfield(infilepath,outfilepath,index):
 
     error_count =0
-    with open(infilepath, "r") as infilepathlines:
-        for line in  csv.reader(infilepathlines, quotechar='"', delimiter=',',
-                         quoting=csv.QUOTE_ALL, skipinitialspace=True):
+    tweet_list =[]
+    #with open(infilepath, "r") as infilepathlines:
+        #for line in  csv.reader(infilepathlines, quotechar='"', delimiter=',',
+                         #quoting=csv.QUOTE_ALL, skipinitialspace=True):
+    for e, line in enumerate( open(infilepath) ):
 
 
             try:
                 #line.split(",")[2]
                 #ts = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(tweet['created_at'],'%a %b %d %H:%M:%S +0000 %Y')
+                line = line.split(",")
                 temp_str = line[index]
-                desired_str = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(line[index],'%a %b %d %H:%M:%S +0000 %Y'))
+                #desired_str = time.strftime('%Y-%m-%d %H:%M:%S', time.strptime(line[index],'%a %b %d %H:%M:%S +0000 %Y'))
+                desired_str = time.strftime('"%Y-%m-%d %H:%M:%S"', time.strptime(line[index],'"%a %b %d %H:%M:%S +0000 %Y"'))
             except:
                 error_count +=1
                 continue
@@ -50,7 +54,8 @@ def openfileandfindreformatfield(infilepath,outfilepath,index):
 
             #line = line.replace(temp_str,desired_str)
             line[index] = desired_str
-            str_literal = "\""
+            #str_literal = "\""
+            str_literal =""
 
             list_index = 0
             outline =""
@@ -69,29 +74,38 @@ def openfileandfindreformatfield(infilepath,outfilepath,index):
                 #outline = ",".join((line))
                 list_index +=1
 
-            f=open(outfilepath, 'a')
-            f.write(outline + "\n")
-            f.flush()
-            f.close()
+            #f=open(outfilepath, 'a')
+            #f.write(outline + "\n")
+            #f.flush()
+            #f.close()
+
+            tweet_list.append(outline)
+
+    f=open(outfilepath, 'a')
+    #f.writelines("%s\n" % l for l in tweet_list)
+    f.writelines("%s" % l for l in tweet_list)
+    #f.write(outline + "\n")
+    f.flush()
+    f.close()
 
     print error_count
 
 if __name__ == '__main__':
     #main()
-    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned.csv"
-    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned_step1_remove_triple_quotes.csv"
+    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\sample_trending_tweets_2015_0111_to_0119_cleaned.csv"
+    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step1_remove_triple_quotes.csv"
     findstr = '"""'
     replacestr = '""'
     openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr)
 
-    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned_step1_remove_triple_quotes.csv"
-    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned_step2_remove_double_quotes.csv"
+    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step1_remove_triple_quotes.csv"
+    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step2_remove_double_quotes.csv"
     findstr = '""'
     replacestr = '"'
     openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr)
 
-    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned_step2_remove_double_quotes.csv"
-    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\01102015\\test_trending_tweets_20150110_cleaned_step3_reformat_datetime.csv"
+    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step2_remove_double_quotes.csv"
+    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step3_reformat_datetime.csv"
     index = 2
     openfileandfindreformatfield(infilepath,outfilepath,index)
 

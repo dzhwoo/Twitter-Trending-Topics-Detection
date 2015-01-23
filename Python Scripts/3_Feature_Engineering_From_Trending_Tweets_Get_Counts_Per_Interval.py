@@ -11,13 +11,13 @@
 
 import helper
 
-topicsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\trending_topics_2015_0111_0112_0113.csv"
+topicsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Raw_Data\\trending_topics_2015_0111_to_0119.csv"
 topicindex = 0
 startdateindex = 1
 
-tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\sample_trending_tweets_2015_0111_0112_0113_cleaned_step3_reformat_datetime.csv"
+tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step3_reformat_datetime.csv"
 
-tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_0112_0113\\Output_tweets_interval_rates_trending_topics_2015_0111_0112_0113_V2.csv"
+tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0119_V2.csv"
 
 #function ontop because they need to be defined first before main
 
@@ -41,6 +41,8 @@ def IterateTweetsAndCountTweets(tweetsInputFilePath,topics):
             #Bii. Get min starttime of topic
             topic_trend_start_time = topics[cur_line_topic]
 
+
+
             topics_trend_start_time = helper.ConvertStringToDatetime(topic_trend_start_time,'%m/%d/%Y %H:%M')
             cur_tweet_time = helper.ConvertStringToDatetime(cur_tweet[2],'"%Y-%m-%d %H:%M:%S"')
 
@@ -55,6 +57,10 @@ def IterateTweetsAndCountTweets(tweetsInputFilePath,topics):
 
                 # we are normalizing by setting a threshold before detected as trends
                 if time_delta_hours <= 4:
+
+                    #if cur_line_topic == "bonnaroo":
+                        #x = 1
+
                     #E. If new topic, create new topic entry
                     if topic_tweet_dict.has_key(cur_line_topic) == True:
                         #Ei then check if the interval exists
@@ -82,14 +88,19 @@ def CalculateTweetRatesPerInterval(topic_and_tweets,resultsfile):
 
         row_count = 0
         str_literal = ','
-        for key in sorted(cur_topic_tweets.iterkeys()):
+
+        # if ascending, t = 0 is when topic was trended.
+        for key in sorted(cur_topic_tweets.iterkeys(),reverse = True):
 
             #print "%s, %s, %s, %s, %s" % (cur_topic, key, cur_topic_tweets[key] , cur_topic_tweets[prev_key] - cur_topic_tweets[key])
 
             if row_count == 0:
+                    tmp_base_tweet_rate = cur_topic_tweets[key]
                     outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + '0' + str_literal + '0'
             else:
-                    outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[prev_key]*1.0 - cur_topic_tweets[key]*1.0)/cur_topic_tweets[prev_key] * 1.0)
+                    #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[prev_key]*1.0 - cur_topic_tweets[key]*1.0)/cur_topic_tweets[prev_key] * 1.0)
+                    # now feature is % from base. Base assumes low activity, is it below or above the base. If still trending above, mostly likely trending
+                    outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
 
             f=open(resultsfile, 'a')
             f.write(outline + "\n")

@@ -9,7 +9,10 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import re
+import numpy
 from datetime import datetime
+import csv
+
 
 def TakeFileConvertIntoDictionary(inputfile,keyindex,valueindex):
 
@@ -28,3 +31,12 @@ def TakeFileConvertIntoDictionary(inputfile,keyindex,valueindex):
 def ConvertStringToDatetime(date_str,date_format):
     #return datetime.strptime(date_str, '%a %b %d %H:%M:%S +0000 %Y')
     return datetime.strptime(date_str, date_format)
+
+def ImportFileConvertToNumpyArray(filepath,numskiprows,user_delimiter,user_dtype):
+    return numpy.loadtxt(filepath,skiprows=numskiprows, delimiter = user_delimiter,dtype = user_dtype)
+
+def ImportCSVFileConvertToNumpyArray(filepath):
+    reader = csv.reader( open(filepath) )
+    l = list(reader)
+    a = numpy.array(l)
+    return a

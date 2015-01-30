@@ -14,7 +14,7 @@ tweepy.debug()
 
 class SListener(StreamListener):
 
-    isDebugMode = False
+    isDebugMode = True
 
     def __init__(self, api = None, fprefix = 'streamer'):
         self.api = api or API()
@@ -29,7 +29,7 @@ class SListener(StreamListener):
     def on_data(self, data):
 
         #current_datetime = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        DEBUG = False
+        DEBUG = True
 
         if  'in_reply_to_status' in data:
             if DEBUG == True:
@@ -65,7 +65,7 @@ class SListener(StreamListener):
 
     def on_status(self, status):
 
-        DEBUG = False
+        DEBUG = True
         #parse tweet into dictionary first for easier indexing
         datadict = json.loads(status)
         #

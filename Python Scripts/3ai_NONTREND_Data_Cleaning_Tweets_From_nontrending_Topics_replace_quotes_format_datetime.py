@@ -33,6 +33,7 @@ def openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr):
 def openfileandfindreformatfield(infilepath,outfilepath,index):
 
     error_count =0
+    counter = 1
     tweet_list =[]
     #with open(infilepath, "r") as infilepathlines:
         #for line in  csv.reader(infilepathlines, quotechar='"', delimiter=',',
@@ -81,6 +82,18 @@ def openfileandfindreformatfield(infilepath,outfilepath,index):
 
             tweet_list.append(outline)
 
+            if len(tweet_list)>1000000:
+                f=open(outfilepath, 'a')
+                #f.writelines("%s\n" % l for l in tweet_list)
+                f.writelines("%s" % l for l in tweet_list)
+                #f.write(outline + "\n")
+                f.flush()
+                f.close()
+                tweet_list = []
+
+                print counter
+                counter +=1
+
     f=open(outfilepath, 'a')
     #f.writelines("%s\n" % l for l in tweet_list)
     f.writelines("%s" % l for l in tweet_list)
@@ -92,20 +105,21 @@ def openfileandfindreformatfield(infilepath,outfilepath,index):
 
 if __name__ == '__main__':
     #main()
-    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\sample_trending_tweets_2015_0111_to_0125_cleaned.csv"
-    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_trending_tweets_2015_0120_to_0125_cleaned_step1_remove_triple_quotes.csv"
+    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\sample_trending_tweets_2015_0111_to_0119_cleaned.csv"
+    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step1_remove_triple_quotes.csv"
     findstr = '"""'
     replacestr = '""'
-    openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr)
+    #openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr)
 
-    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_trending_tweets_2015_0120_to_0125_cleaned_step1_remove_triple_quotes.csv"
-    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_trending_tweets_2015_0120_to_0125_cleaned_step2_remove_double_quotes.csv"
+    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step1_remove_triple_quotes.csv"
+    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step2_remove_double_quotes.csv"
     findstr = '""'
     replacestr = '"'
-    openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr)
+    #openfileandfindreplacechar(infilepath,outfilepath,findstr,replacestr)
 
-    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_trending_tweets_2015_0120_to_0125_cleaned_step2_remove_double_quotes.csv"
-    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_trending_tweets_2015_0120_to_0125_cleaned_step3_reformat_datetime.csv"
+    infilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\remaining_tweets_2015_0111_to_0125_cleaned.csv"
+    outfilepath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_NONtrending_tweets_2015_0120_to_0125_cleaned_step3_reformat_datetime.csv"
+
     index = 2
     openfileandfindreformatfield(infilepath,outfilepath,index)
 

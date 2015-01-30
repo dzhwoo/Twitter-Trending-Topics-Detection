@@ -53,7 +53,12 @@ where topic = 'name';
 select count(topic) from bma.dzw_twitter_classification_trending_topics_raw;
 
 select * from bma.dzw_twitter_classification_trending_topics_raw
+--where lower(topic) = 'bonnaroo'
+--where lower(topic) ='#bonnaroo2015'
+where lower(topic) ='peppers'
 limit 10
+
+
 
 --3. now summarize topics
 truncate table bma.dzw_twitter_classification_trending_topics_summarized;

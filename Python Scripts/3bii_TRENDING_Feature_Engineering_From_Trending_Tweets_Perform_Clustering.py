@@ -14,6 +14,7 @@ import csv
 import numpy as np
 import random
 import math
+import matplotlib.pylab as plt
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
@@ -109,9 +110,11 @@ def Take2dArrayOrderByColumnHeader(inputarray,columnlabels,rowlabels):
     index = 0
     for label in columnlabels:
         print index,label
+        if label != 'foo':
+            outarray[:,int(float(label))] = inputarray[:,index]
         index +=1
 
-
+    return outarray
 
 def main():
     #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
@@ -130,42 +133,51 @@ def main():
     pivot_table[row_pos, col_pos] = data[:, 2]
     data_pivoted = pivot_table
 
-    Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
+    data_pivoted_colsorted = Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
 
-    #clustering algorithm
-    cluster = KMeans(n_clusters = 4, init = 'k-means++')
-    groups = cluster.fit_predict(data_pivoted)
+    #clustering algorithm k means only euclidean distances
+    #cluster = KMeans(n_clusters = 4, init = 'k-means++')
+    #groups = cluster.fit_predict(data_pivoted)
 
     #implemented performing metrics
-    score = silhouette_score(data_pivoted,groups)
-    print score
+    #score = silhouette_score(data_pivoted,groups)
+    #print score
     #l = list(reader)
     #a = np.array(l)
 
     # quick hack for visualizing. There should be other ways as well
-    np.savetxt(tweetsOutputFilePath, data_pivoted)
-    np.savetxt(tweetsclOutputFilePath, groups)
+    #np.savetxt(tweetsOutputFilePath, data_pivoted)
+    #np.savetxt(tweetsclOutputFilePath, groups)
 
     #rows.tofile(fid = tweetsRowHeaderOutputFilePath,sep = ",",format="%s")
-    np.savetxt(tweetsRowHeaderOutputFilePath, rows,fmt = '%s')
-    np.savetxt(tweetsRowIndexOutputFilePath, row_pos)
-    np.savetxt(tweetsColumnHeaderOutputFilePath, cols,fmt = '%s')
-    np.savetxt(tweetsColumnIndexOutputFilePath, col_pos)
+    #np.savetxt(tweetsRowHeaderOutputFilePath, rows,fmt = '%s')
+    #np.savetxt(tweetsRowIndexOutputFilePath, row_pos)
+    #np.savetxt(tweetsColumnHeaderOutputFilePath, cols,fmt = '%s')
+    #np.savetxt(tweetsColumnIndexOutputFilePath, col_pos)
 
     #test = a[:,[0,1,4]]
-    pass
+    #pass
     #1 import data from file into numpy array
     #2 then perform k means clustering
     #3 then determine performance matrix of clusters
     #4 also visualize results
 
     groups_dtw = np.zeros(len(rows), dtype = 'f4')
-    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted,4,4,4)
+    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,4,4,4)
+    #centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted,4,4,4)
     #centroids=k_means_clust(data_pivoted,4,10,4)
 
-    score = silhouette_score(data_pivoted,groups_dtw)
+    #score = silhouette_score(data_pivoted,groups_dtw)
+    score = silhouette_score(data_pivoted_colsorted,groups_dtw)
     print score
+
     np.savetxt(tweetsclOutputFilePath, groups_dtw)
+
+    #centroids=k_means_clust(data,4,10,4)
+    for i in centroids:
+        plt.plot(i)
+
+    plt.show()
 
 
 

@@ -12,6 +12,7 @@ import re
 import numpy
 from datetime import datetime
 import csv
+import random
 
 
 def TakeFileConvertIntoDictionary(inputfile,keyindex,valueindex):
@@ -27,6 +28,22 @@ def TakeFileConvertIntoDictionary(inputfile,keyindex,valueindex):
 
     print "Hello World"
 
+##def TakeFileConvertIntoDictionary(inputfile,keyindex,valueindex,shouldClean):
+##
+##    output_dict={}
+##    for e, line in enumerate( open(inputfile) ):
+##        tmp_line = line.split(",")
+##        if shouldClean == True:
+##            temp_topic = re.sub("[^a-zA-Z]","",tmp_line[keyindex])
+##            temp_topic = temp_topic.lower()
+##        else:
+##            temp_topic = tmp_line[keyindex]
+##        output_dict[temp_topic] = tmp_line[valueindex]
+##
+##    return output_dict
+##
+##    print "Hello World"
+
 
 def ConvertStringToDatetime(date_str,date_format):
     #return datetime.strptime(date_str, '%a %b %d %H:%M:%S +0000 %Y')
@@ -40,3 +57,62 @@ def ImportCSVFileConvertToNumpyArray(filepath):
     l = list(reader)
     a = numpy.array(l)
     return a
+
+def WriteListToFile(inputlist,outfilepath):
+
+    f=open(outfilepath, 'a')
+    f.writelines("%s" % l for l in inputlist)
+    f.flush()
+    f.close()
+
+def ReadFileIntoList(inputlist,colindex):
+
+    outtext =[]
+
+    for e, line in enumerate( open(inputlist) ):
+        tmp_text = line.split(",")[colindex]
+        tmp_text = tmp_text.replace("\"", "")
+        tmp_text = tmp_text.replace("#", "")
+
+        outtext.append(tmp_text)
+
+    return outtext
+
+def FilterFileBasedOnList(inputfilepath,colindex,inputlist,outputfile):
+
+    outtext =[]
+
+    for e, line in enumerate( open(inputfilepath) ):
+
+        tmp_text = line.split(",")[colindex]
+        tmp_text = tmp_text.replace("#", "")
+
+        if tmp_text in inputlist:
+            outtext.append(line)
+
+    return outtext
+
+
+# HELPER FUNCTIONS FOR STATISTICAL ANALYSIS : Sampling etc
+
+def AddRandomNumberToFile(inputfilepath,outputfilepath,SamplingRatio):
+
+    outlines = []
+
+    #1 read inputfile line by line
+    for e, line in enumerate( open(inputfilepath) ):
+        line = line.rstrip("\n")
+
+        rand_num = random.randint(1,SamplingRatio)
+
+        if rand_num == SamplingRatio:
+            #2 then append random number to add of line
+            line = line + "," + str(rand_num) + "\n"
+
+            outlines.append(line)
+
+    #3 Once done then write out to file
+    WriteListToFile(outlines,outputfilepath)
+
+
+

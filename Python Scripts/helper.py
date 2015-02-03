@@ -78,6 +78,19 @@ def ReadFileIntoList(inputlist,colindex):
 
     return outtext
 
+def ReadFileIntoListWithSpecialFormat(inputlist,colindex):
+
+    outtext =[]
+
+    for e, line in enumerate( open(inputlist) ):
+        tmp_text = line.split(",")[colindex]
+        tmp_text = re.sub("[^a-zA-Z]","",tmp_text)
+        tmp_text = tmp_text.lower()
+
+        outtext.append(tmp_text)
+
+    return outtext
+
 def FilterFileBasedOnList(inputfilepath,colindex,inputlist,outputfile):
 
     outtext =[]
@@ -113,6 +126,34 @@ def AddRandomNumberToFile(inputfilepath,outputfilepath,SamplingRatio):
 
     #3 Once done then write out to file
     WriteListToFile(outlines,outputfilepath)
+
+
+def PartitionFileIntoTrainingAndTestSet(inputfilepath,train_outputfilepath,test_outputfilepath,SamplingRatio):
+
+    #TODO, may need to improve this later to specify sample size and then choose data.
+    outlines_train = []
+    outlines_test = []
+
+    #1 read inputfile line by line
+    for e, line in enumerate( open(inputfilepath) ):
+        line = line.rstrip("\n")
+
+        rand_num = random.randint(1,SamplingRatio)
+
+        if rand_num == SamplingRatio:
+            #2 then append random number to add of line
+            line = line + "," + str(rand_num) + "\n"
+
+            outlines_train.append(line)
+        elif rand_num == SamplingRatio - 1:
+            #2 then append random number to add of line
+            line = line + "," + str(rand_num) + "\n"
+
+            outlines_test.append(line)
+
+    #3 Once done then write out to file
+    WriteListToFile(outlines_train,train_outputfilepath)
+    WriteListToFile(outlines_test,test_outputfilepath)
 
 
 

@@ -20,12 +20,12 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
-tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
+#tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
 tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
-tweetsRowHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_rowheader.csv"
-tweetsRowIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_rowindex.csv"
-tweetsColumnHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_columnheader.csv"
-tweetsColumnIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_columnindex.csv"
+#tweetsRowHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_rowheader.csv"
+#tweetsRowIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_rowindex.csv"
+#tweetsColumnHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_columnheader.csv"
+#tweetsColumnIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_tweets_columnindex.csv"
 
 def DTWDistance(s1, s2,w):
     DTW={}
@@ -105,7 +105,8 @@ def k_means_clust(groups_dtw,data,num_clust,num_iter,w=5):
 #create function to reorder matrix based on column values
 def Take2dArrayOrderByColumnHeader(inputarray,columnlabels,rowlabels):
 
-    outarray = np.zeros((len(rowlabels), len(columnlabels)), dtype = 'f4')
+    #outarray = np.zeros((len(rowlabels), len(columnlabels)), dtype = 'f4')
+    outarray = np.zeros((len(rowlabels), 121), dtype = 'f4')
 
     index = 0
     for label in columnlabels:
@@ -116,7 +117,7 @@ def Take2dArrayOrderByColumnHeader(inputarray,columnlabels,rowlabels):
 
     return outarray
 
-def main():
+def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,tweetsclOutputFilePath,tweetsclCentriodsOutputFilePath):
     #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
     data = helper.ImportCSVFileConvertToNumpyArray(tweetsInputFilePath)
     data = data[:,[0,1,4]]
@@ -135,45 +136,15 @@ def main():
 
     data_pivoted_colsorted = Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
 
-    #clustering algorithm k means only euclidean distances
-    #cluster = KMeans(n_clusters = 4, init = 'k-means++')
-    #groups = cluster.fit_predict(data_pivoted)
-
-    #implemented performing metrics
-    #score = silhouette_score(data_pivoted,groups)
-    #print score
-    #l = list(reader)
-    #a = np.array(l)
-
-    # quick hack for visualizing. There should be other ways as well
-    #np.savetxt(tweetsOutputFilePath, data_pivoted)
-    #np.savetxt(tweetsclOutputFilePath, groups)
-
-    #rows.tofile(fid = tweetsRowHeaderOutputFilePath,sep = ",",format="%s")
-    #np.savetxt(tweetsRowHeaderOutputFilePath, rows,fmt = '%s')
-    #np.savetxt(tweetsRowIndexOutputFilePath, row_pos)
-    #np.savetxt(tweetsColumnHeaderOutputFilePath, cols,fmt = '%s')
-    #np.savetxt(tweetsColumnIndexOutputFilePath, col_pos)
-
-    #test = a[:,[0,1,4]]
-    #pass
-    #1 import data from file into numpy array
-    #2 then perform k means clustering
-    #3 then determine performance matrix of clusters
-    #4 also visualize results
-
     groups_dtw = np.zeros(len(rows), dtype = 'f4')
-    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,4,4,4)
-    #centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted,4,4,4)
-    #centroids=k_means_clust(data_pivoted,4,10,4)
+    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,num_clust,4,4)
 
-    #score = silhouette_score(data_pivoted,groups_dtw)
     score = silhouette_score(data_pivoted_colsorted,groups_dtw)
     print score
 
     np.savetxt(tweetsclOutputFilePath, groups_dtw)
+    np.savetxt(tweetsclCentriodsOutputFilePath, centroids)
 
-    #centroids=k_means_clust(data,4,10,4)
     for i in centroids:
         plt.plot(i)
 

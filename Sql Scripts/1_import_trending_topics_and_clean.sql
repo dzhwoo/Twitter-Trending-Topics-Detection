@@ -44,6 +44,14 @@ copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwo
 copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150117_v2_wrank.csv' delimiter ',';
 copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150118_v2_wrank.csv' delimiter ',';
 copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150119_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150120_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150121_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150122_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150123_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150124_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150125_v2_wrank.csv' delimiter ',';
+copy bma.dzw_twitter_classification_trending_topics_raw from local 'C:\Users\dwoo57\Google Drive\Career\Projects\Trending Topics\Scipts\Data\Topics\usa_trending_topics20150126_v2_wrank.csv' delimiter ',';
+
 
 --2. check for headers
 select count(topic) from bma.dzw_twitter_classification_trending_topics_raw
@@ -75,8 +83,17 @@ select max(start_dt) from bma.dzw_twitter_classification_trending_topics_summari
 ---4. get topics between range
 select * from bma.dzw_twitter_classification_trending_topics_summarized
 where duration_minutes between 120 and 1440 -- last more than 2hours and less than 24 hours
-and start_dt between '2015-01-11' and '2015-01-19'
+and start_dt between '2015-01-11' and '2015-01-25'
 and rank in ('1','2','3','4','5','6')
+order by rank,duration_minutes desc
+
+---5. get all trending topics 
+select * from bma.dzw_twitter_classification_trending_topics_summarized
+where 
+--duration_minutes between 120 and 1440 -- last more than 2hours and less than 24 hours
+--and 
+start_dt between '2015-01-11' and '2015-01-25'
+--and rank in ('1','2','3','4','5','6')
 order by rank,duration_minutes desc
 
 

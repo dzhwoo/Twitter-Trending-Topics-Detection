@@ -10,11 +10,11 @@
 #-------------------------------------------------------------------------------
 import helper
 
-loc_input_topics = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_NONtrending_topics_end_time_double_quotes_rmv.txt"
-loc_input_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0119_V2.csv"
+loc_input_topics = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_NONtrending_topics_end_time_double_quotes_rmv.csv"
+loc_input_tweets = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0125_V2.csv"
 
-loc_output_topics = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_NONtrending_topics_end_time_SAMPLED.csv"
-loc_output_tweetrate = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0119_V2_SAMPLED.csv"
+loc_output_topics = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\test_NONtrending_topics_end_time_SAMPLED.csv"
+loc_output_tweetrate = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0125_V2_SAMPLED.csv"
 
 
 def main():

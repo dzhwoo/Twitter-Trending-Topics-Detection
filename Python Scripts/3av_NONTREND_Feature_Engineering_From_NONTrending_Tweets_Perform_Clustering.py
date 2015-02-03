@@ -19,13 +19,13 @@ import matplotlib.pylab as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
-tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0119_V2_SAMPLED.csv"
-tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Cluster_Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0119_V2.csv"
-tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Cluster_Groups_Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0119_V2.csv"
-tweetsRowHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Cluster_Groups_Output_NONtrendtweets_rowheader.csv"
-tweetsRowIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Cluster_Groups_Output_NONtrendtweets_rowindex.csv"
-tweetsColumnHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Cluster_Groups_Output_NONtrendtweets_columnheader.csv"
-tweetsColumnIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\Cluster_Groups_Output_NONtrendtweets_columnindex.csv"
+tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Output_tweets_interval_rates_NON_TRENDING_topics_2015_0111_to_0125_V2_TRAIN_SAMPLED.csv"
+tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0125_V2.csv"
+tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_NONtrending_topics_2015_0111_to_0125_V2.csv"
+#tweetsRowHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_NONtrendtweets_rowheader.csv"
+#tweetsRowIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_NONtrendtweets_rowindex.csv"
+#tweetsColumnHeaderOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_NONtrendtweets_columnheader.csv"
+#tweetsColumnIndexOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Groups_Output_NONtrendtweets_columnindex.csv"
 
 def DTWDistance(s1, s2,w):
     DTW={}
@@ -105,7 +105,9 @@ def k_means_clust(groups_dtw,data,num_clust,num_iter,w=5):
 #create function to reorder matrix based on column values
 def Take2dArrayOrderByColumnHeader(inputarray,columnlabels,rowlabels):
 
-    outarray = np.zeros((len(rowlabels), len(columnlabels)), dtype = 'f4')
+    #hardcore for now assuming some time intervals are not represented here
+    outarray = np.zeros((len(rowlabels), 120), dtype = 'f4')
+    #outarray = np.zeros((len(rowlabels), len(columnlabels)), dtype = 'f4')
 
     index = 0
     for label in columnlabels:

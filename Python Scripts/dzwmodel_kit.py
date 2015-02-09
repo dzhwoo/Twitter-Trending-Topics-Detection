@@ -150,7 +150,97 @@ def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,tweetscl
 
     plt.show()
 
+def LoadTweetsIntervalRatesIntoPivotTable(tweetsInputFilePath):
+    #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
+    data = helper.ImportCSVFileConvertToNumpyArray(tweetsInputFilePath)
+    data = data[:,[0,1,4]]
+    #reader = csv.reader( open(tweetsInputFilePath) )
+
+    # this gets unique rows?
+    rows, row_pos = np.unique(data[:, 0], return_inverse=True)
+    cols, col_pos = np.unique(data[:, 1], return_inverse=True)
+    rows, row_pos = np.unique(data[:, 0], return_inverse=True)
+    cols, col_pos = np.unique(data[:, 1], return_inverse=True)
+
+    pivot_table = np.zeros((len(rows), len(cols)), dtype = 'f4')
+    #pivot_table = np.zeros((len(rows), len(cols)), dtype=data.dtype)
+    pivot_table[row_pos, col_pos] = data[:, 2]
+    data_pivoted = pivot_table
+
+    data_pivoted_colsorted = Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
+
+    groups_dtw = np.zeros(len(rows), dtype = 'f4')
+
+    return data_pivoted_colsorted, groups_dtw
+
+#This is different from above. Maybe remain above to fit. This takes the clusters from above and then assigns them
+def Predict_k_means_clust(centroids,tweets,groups_dtw,w=5):
+    #centroids=random.sample(data,num_clust)
+    #counter=0
+
+    groups_topic ={}
+    assignments={}
+
+    #1.Import centriods
+    #2.Import tweet rate
+
+    #3.Then assign each topics to the nearest centriod
+    for ind,i in enumerate(tweets):
+            min_dist=float('inf')
+            closest_clust=None
+            for c_ind,j in enumerate(centroids):
+                if LB_Keogh(i,j,5)<min_dist:
+                    cur_dist=DTWDistance(i,j,w)
+                    if cur_dist<min_dist:
+                        min_dist=cur_dist
+                        closest_clust=c_ind
+            if closest_clust in assignments:
+                assignments[closest_clust].append(ind)
+            else:
+                assignments[closest_clust]=[]
+
+    for key in assignments:
+        for k in assignments[key]:
+            if k not in groups_topic:
+                        groups_topic[k] = key
+
+    #4.Return assignments, for each topic what group do they belong to
+    for key in sorted(groups_topic.iterkeys(),reverse = False):
+            groups_dtw[key] = groups_topic[key]
 
 
-if __name__ == '__main__':
-    main()
+    #5. Then plot centroids and their topics
+    index = 0
+    for i in centroids:
+
+        plt.plot(i)
+        plt.show() #show orginal clusters
+        for topics in assignments[index]:
+            print assignments[index]
+            plt.plot(tweets[topics])
+
+        plt.show()
+        index +=1
+
+    return groups_dtw
+
+
+def PredictAssignClosestClusterBasedOnDynamicTW(tweetsclCentriodsOutputFilePath_trend,tweetsclCentriodsOutputFilePath_nontrend, loc_output_TRENDING_tweetrate_TEST):
+
+    #1a Load trending clusters
+    #1b Load nontrending clusters
+    pivot_table_trending = np.loadtxt(tweetsclCentriodsOutputFilePath_trend)
+    pivot_table_nontrending = np.loadtxt(tweetsclCentriodsOutputFilePath_nontrend)
+
+    pivot_table_clusters = np.concatenate((pivot_table_trending, pivot_table_nontrending))
+
+    #2.load data and then Assign topics to closest cluster
+    tweets, groups_dtw = LoadTweetsIntervalRatesIntoPivotTable(loc_output_TRENDING_tweetrate_TEST)
+
+    #3.Then return topics and which groups they belong to
+    groups_dtw = Predict_k_means_clust(pivot_table_clusters,tweets,groups_dtw)
+
+    return
+
+#if __name__ == '__main__':
+#    main()

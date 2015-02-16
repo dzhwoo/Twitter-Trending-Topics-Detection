@@ -48,11 +48,11 @@ loc_output_NON_TRENDING_tweetrate_TEST = "C:\\Users\\dwoo57\\Google Drive\\Caree
 #CLUSTER OUTPUT FILES
 #TREND_TRAIN_tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
 #tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Cluster_Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
-TREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_trending_TRAIN_topics_2015_0111_to_0125_V2_test.csv"
-TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_TRENDING_TRAIN_topics_2015_0111_to_0125_V2_Test.csv"
+TREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_trending_TRAIN_topics_2015_0111_to_0125_V2_test_3cl.csv"
+TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_TRENDING_TRAIN_topics_2015_0111_to_0125_V2_test_3cl.csv"
 
-NONTREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_NON_trending_TRAIN_topics_2015_0111_to_0125_V2_test.csv"
-NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_NON_TRENDING_TRAIN_topics_2015_0111_to_0125_V2_test.csv"
+NONTREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_NON_trending_TRAIN_topics_2015_0111_to_0125_V2.csv"
+NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_NON_TRENDING_TRAIN_topics_2015_0111_to_0125_V2.csv"
 
 
 def main():
@@ -96,7 +96,7 @@ def main():
     isTrained = False
 
     if isTrained == False:
-        num_clust = 4
+        num_clust = 3
         dzwmodel_kit.KMeansClustBasedOnDynamicTimeWrapping(loc_output_TRENDING_tweetrate_TRAIN,num_clust,TREND_TRAIN_tweetsclOutputFilePath,TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath)
 
         #num_clust = 4

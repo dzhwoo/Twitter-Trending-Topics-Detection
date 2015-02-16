@@ -117,6 +117,39 @@ def Take2dArrayOrderByColumnHeader(inputarray,columnlabels,rowlabels):
 
     return outarray
 
+# This calculates the silhouttescore or whether clusters overlap using dynamic time wrapping euclidean distance
+def CalcSilhoutteScoreUsingDTW(X, labels):
+
+    #1. for each row calculate the pairwise distance between another row
+    distances = pairwise_distances(X, metric=metric, **kwds)
+    n = labels.shape[0]
+    A = np.array([_intra_cluster_distance(distances[i], labels, i)
+                  for i in range(n)])
+    B = np.array([_nearest_cluster_distance(distances[i], labels, i)
+                  for i in range(n)])
+    sil_samples = (B - A) / np.maximum(A, B)
+    # nan values are for clusters of size 1, and should be 0
+    return np.nan_to_num(sil_samples)
+
+# Paired distances
+def paired_euclidean_distances(X, Y):
+    """
+    Computes the paired euclidean distances between X and Y
+
+    Parameters
+    ----------
+    X : array-like, shape (n_samples, n_features)
+
+    Y : array-like, shape (n_samples, n_features)
+
+    Returns
+    -------
+    distances : ndarray (n_samples, )
+    """
+    X, Y = check_paired_arrays(X, Y)
+
+    return np.sqrt(((X - Y) ** 2).sum(axis=-1))
+
 def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,tweetsclOutputFilePath,tweetsclCentriodsOutputFilePath):
     #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
     data = helper.ImportCSVFileConvertToNumpyArray(tweetsInputFilePath)
@@ -137,7 +170,8 @@ def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,tweetscl
     data_pivoted_colsorted = Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
 
     groups_dtw = np.zeros(len(rows), dtype = 'f4')
-    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,num_clust,4,4)
+    num_iter = 10
+    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,num_clust,num_iter,4)
 
     score = silhouette_score(data_pivoted_colsorted,groups_dtw)
     print score
@@ -173,57 +207,136 @@ def LoadTweetsIntervalRatesIntoPivotTable(tweetsInputFilePath):
 
     return data_pivoted_colsorted, groups_dtw
 
-#This is different from above. Maybe remain above to fit. This takes the clusters from above and then assigns them
-def Predict_k_means_clust(centroids,tweets,groups_dtw,w=5):
+#This is different from above. Maybe rename above to fit. This takes the clusters from above and then assigns them. Also, added option to use weight mean distance
+def Predict_k_means_clust(centroids,tweets,groups_dtw,isUseExpWeightedMean,w=5):
     #centroids=random.sample(data,num_clust)
     #counter=0
 
     groups_topic ={}
     assignments={}
+    topic_cluster_dist={-99:{-99:1.000}}
+    #topic_tweet_dict = {'dict1':{'foo':1}}
 
     #1.Import centriods
     #2.Import tweet rate
 
-    #3.Then assign each topics to the nearest centriod
-    for ind,i in enumerate(tweets):
-            min_dist=float('inf')
-            closest_clust=None
-            for c_ind,j in enumerate(centroids):
-                if LB_Keogh(i,j,5)<min_dist:
-                    cur_dist=DTWDistance(i,j,w)
-                    if cur_dist<min_dist:
-                        min_dist=cur_dist
-                        closest_clust=c_ind
-            if closest_clust in assignments:
-                assignments[closest_clust].append(ind)
-            else:
-                assignments[closest_clust]=[]
+    if isUseExpWeightedMean == False:
 
-    for key in assignments:
-        for k in assignments[key]:
-            if k not in groups_topic:
-                        groups_topic[k] = key
+        #3.Then assign each topics to the nearest centriod
+        for ind,i in enumerate(tweets):
+                min_dist=float('inf')
+                closest_clust=None
+                for c_ind,j in enumerate(centroids):
+                    if LB_Keogh(i,j,5)<min_dist:
+                        cur_dist=DTWDistance(i,j,w)
+                        if cur_dist<min_dist:
+                            min_dist=cur_dist
+                            closest_clust=c_ind
+                if closest_clust in assignments:
+                    assignments[closest_clust].append(ind)
+                else:
+                    assignments[closest_clust]=[]
 
-    #4.Return assignments, for each topic what group do they belong to
-    for key in sorted(groups_topic.iterkeys(),reverse = False):
-            groups_dtw[key] = groups_topic[key]
+        for key in assignments:
+            for k in assignments[key]:
+                if k not in groups_topic:
+                            groups_topic[k] = key
+
+        #4.Return assignments, for each topic what group do they belong to
+        for key in sorted(groups_topic.iterkeys(),reverse = False):
+                groups_dtw[key] = groups_topic[key]
 
 
-    #5. Then plot centroids and their topics
-    index = 0
-    for i in centroids:
+        #5. Then plot centroids and their topics
+        index = 0
+        for i in centroids:
 
-        plt.plot(i)
-        plt.show() #show orginal clusters
-        for topics in assignments[index]:
-            print assignments[index]
-            plt.plot(tweets[topics])
+            plt.plot(i)
+            plt.show() #show orginal clusters
+            for topics in assignments[index]:
+                print assignments[index]
+                plt.plot(tweets[topics])
 
-        plt.show()
-        index +=1
+            plt.show()
+            index +=1
 
-    return groups_dtw
+        return groups_dtw
 
+    else:
+        #a. Calulate distance between each clusters and calc exponential. In this case, lower the better. Goal is to minimize the distance
+        #b. Then sum trending and non trending and take the ratio of trending/nontrending
+        #c. Results: if ratio <1 then trending, >1 then nontrending.
+        #d. Store distance between each cluster and each topics. So should have table like topic, cluster 1 dist, cluster 2 dist, cluster 3 dist
+
+        #a i). Per topic, iterate through each cluster and calc the distance
+        for topic,topic_interval_rates in enumerate(tweets):
+
+                min_dist=float('inf')
+                closest_clust=None
+
+                if topic != 15:
+                    continue
+
+
+
+                for cluster,cluster_interval_rates in enumerate(centroids):
+
+                        cur_dist=DTWDistance(topic_interval_rates,cluster_interval_rates,w)
+
+                        #a ii) if cluster is new then add
+                        if topic in topic_cluster_dist:
+                            #topic_cluster_dist[topic].append(cur_dist)
+                            topic_cluster_dist[topic][cluster] = cur_dist
+                        else:
+                            #topic_cluster_dist[topic] = [cluster,cur_dist]
+                            topic_cluster_dist[topic] = {cluster:cur_dist}
+
+                #break;
+
+
+        #bi) next calculate the sum of exponential distance for each trending clusters
+        running_sum_exp_dist_trending = {}
+
+        for topic in topic_cluster_dist:
+
+            if topic == -99:
+                continue
+            #TODO replace with the number of trending topics
+            for cluster in range(0,3):
+                temp_exp_dist_trending = math.exp(topic_cluster_dist[topic][cluster])
+
+                if topic in running_sum_exp_dist_trending:
+                    running_sum_exp_dist_trending[topic] = temp_exp_dist_trending + running_sum_exp_dist_trending[topic]
+                else:
+                    running_sum_exp_dist_trending[topic] = temp_exp_dist_trending
+
+        #bii) next calculate the sum of exponential distance for each NON-trending clusters
+        running_sum_exp_dist_nontrending = {}
+
+        for topic in topic_cluster_dist:
+            if topic == -99:
+                continue
+            #TODO replace with the number of trending topics
+            for cluster in range(4,7):
+                temp_exp_dist_trending = math.exp(topic_cluster_dist[topic][cluster])
+
+                if topic in running_sum_exp_dist_nontrending:
+                    running_sum_exp_dist_nontrending[topic] = temp_exp_dist_trending + running_sum_exp_dist_nontrending[topic]
+                else:
+                    running_sum_exp_dist_nontrending[topic] = temp_exp_dist_trending
+
+        #biii) now for each topic calculate the ratio
+        weighted_mean_distance_per_topic = {}
+
+        for topic in running_sum_exp_dist_trending:
+            if topic == -99:
+                continue
+            #TODO replace with the number of trending topics
+            weighted_mean_distance_per_topic[topic] = running_sum_exp_dist_trending[topic]/running_sum_exp_dist_nontrending[topic]
+            print topic,running_sum_exp_dist_trending[topic]/running_sum_exp_dist_nontrending[topic]
+
+
+        return
 
 def PredictAssignClosestClusterBasedOnDynamicTW(tweetsclCentriodsOutputFilePath_trend,tweetsclCentriodsOutputFilePath_nontrend, loc_output_TRENDING_tweetrate_TEST):
 
@@ -238,7 +351,8 @@ def PredictAssignClosestClusterBasedOnDynamicTW(tweetsclCentriodsOutputFilePath_
     tweets, groups_dtw = LoadTweetsIntervalRatesIntoPivotTable(loc_output_TRENDING_tweetrate_TEST)
 
     #3.Then return topics and which groups they belong to
-    groups_dtw = Predict_k_means_clust(pivot_table_clusters,tweets,groups_dtw)
+    isUseExpWeightedMean = True
+    groups_dtw = Predict_k_means_clust(pivot_table_clusters,tweets,groups_dtw,isUseExpWeightedMean)
 
     return
 

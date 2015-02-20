@@ -58,9 +58,23 @@ def LB_Keogh(s1,s2,r):
 
     return math.sqrt(LB_sum)
 
-def k_means_clust(groups_dtw,data,num_clust,num_iter,w=5):
+# if sample size is 0 then no random sampling
+def k_means_clust(groups_dtw,data,num_clust,num_iter,sample_size,w=5):
+
+    isDebugOn = False
+
     centroids=random.sample(data,num_clust)
     counter=0
+
+    if sample_size != 0:
+        data = random.sample(data,sample_size)
+
+
+
+    #for i in range(len(data)):
+        #plt.plot(data[i])
+
+    #plt.show()
 
     groups_topic ={}
 
@@ -84,21 +98,53 @@ def k_means_clust(groups_dtw,data,num_clust,num_iter,w=5):
                 assignments[closest_clust]=[]
 
         #recalculate centroids of clusters
+
+        # here assigments is the set of clusters. or assignments = clusterss
+        #1. For each cluster
         for key in assignments:
             clust_sum=0
-            for k in assignments[key]:
-                clust_sum=clust_sum+data[k]
+            #2. key =clusters. Sum all data points within cluster. Is it the sum or should we use the normalized points after time warping? But time warping needs to be done relatively to something
 
-                # for last iteration print groups out
-                if n == num_iter -1 :
-                    if k not in groups_topic:
-                        groups_topic[k] = key
+            # this is in the case that this cluster does not have any topics.
+            if len(assignments[key]) < 1:
+                if isDebugOn == True:
+                    print "Centriod had not topics associated with it"
+                    print centroids[key]
+                    plt.plot(centroids[key])
+                    plt.show() #show orginal clusters
+                continue
+            else:
+                for k in assignments[key]:
+                    clust_sum=clust_sum+data[k]
 
+                    # for last iteration print groups out
+                    if n == num_iter -1 :
+                        if k not in groups_topic:
+                            groups_topic[k] = key
+
+            #3. Recalc the current centriod based on the average of topics. For each interval, sum across topics and divide by number of topics.
             centroids[key]=[m/len(assignments[key]) for m in clust_sum]
 
         # then need to sort dictionary by topic and print groups out
         for key in sorted(groups_topic.iterkeys(),reverse = False):
             groups_dtw[key] = groups_topic[key]
+
+    # Visualize final plots. This is visual inspection of clusters.
+    #isDebugOn = True
+    if isDebugOn == True:
+
+        index = 0
+        for i in centroids:
+            plt.plot(i)
+            plt.show() #show orginal clusters
+            if len(assignments[index]) > 0:
+                for topics in assignments[index]:
+                    print assignments[index]
+                    plt.plot(data[topics])
+
+            plt.show()
+            index +=1
+
 
     return centroids,groups_dtw
 
@@ -150,7 +196,7 @@ def paired_euclidean_distances(X, Y):
 
     return np.sqrt(((X - Y) ** 2).sum(axis=-1))
 
-def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,tweetsclOutputFilePath,tweetsclCentriodsOutputFilePath):
+def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,sample_size,tweetsclOutputFilePath,tweetsclCentriodsOutputFilePath):
     #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
     data = helper.ImportCSVFileConvertToNumpyArray(tweetsInputFilePath)
     data = data[:,[0,1,4]]
@@ -171,7 +217,7 @@ def KMeansClustBasedOnDynamicTimeWrapping(tweetsInputFilePath,num_clust,tweetscl
 
     groups_dtw = np.zeros(len(rows), dtype = 'f4')
     num_iter = 10
-    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,num_clust,num_iter,4)
+    centroids,groups_dtw =k_means_clust(groups_dtw,data_pivoted_colsorted,num_clust,num_iter,sample_size,4)
 
     score = silhouette_score(data_pivoted_colsorted,groups_dtw)
     print score
@@ -253,11 +299,13 @@ def Predict_k_means_clust(centroids,tweets,groups_dtw,isUseExpWeightedMean,w=5):
 
             plt.plot(i)
             plt.show() #show orginal clusters
-            for topics in assignments[index]:
-                print assignments[index]
-                plt.plot(tweets[topics])
+            if assignments.has_key(index):
+                for topics in assignments[index]:
+                    print assignments[index]
+                    plt.plot(tweets[topics])
 
-            plt.show()
+                plt.show()
+                print index, len(assignments[index])
             index +=1
 
         return groups_dtw
@@ -351,7 +399,7 @@ def PredictAssignClosestClusterBasedOnDynamicTW(tweetsclCentriodsOutputFilePath_
     tweets, groups_dtw = LoadTweetsIntervalRatesIntoPivotTable(loc_output_TRENDING_tweetrate_TEST)
 
     #3.Then return topics and which groups they belong to
-    isUseExpWeightedMean = True
+    isUseExpWeightedMean = False
     groups_dtw = Predict_k_means_clust(pivot_table_clusters,tweets,groups_dtw,isUseExpWeightedMean)
 
     return

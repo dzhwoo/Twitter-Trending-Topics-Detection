@@ -51,8 +51,8 @@ loc_output_NON_TRENDING_tweetrate_TEST = "C:\\Users\\dwoo57\\Google Drive\\Caree
 TREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_trending_TRAIN_topics_2015_0111_to_0125_V2_test_3cl.csv"
 TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_TRENDING_TRAIN_topics_2015_0111_to_0125_V2_test_3cl.csv"
 
-NONTREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_NON_trending_TRAIN_topics_2015_0111_to_0125_V2.csv"
-NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_NON_TRENDING_TRAIN_topics_2015_0111_to_0125_V2.csv"
+NONTREND_TRAIN_tweetsclOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_Groups_Output_tweets_interval_rates_NON_trending_TRAIN_topics_2015_0111_to_0125_V2_test_3cl.csv"
+NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Modeling\\Training\\Cluster_CENTRIODS_Groups_Output_tweets_interval_rates_NON_TRENDING_TRAIN_topics_2015_0111_to_0125_V2_test_3cl.csv"
 
 
 def main():
@@ -93,14 +93,16 @@ def main():
     #2. After samples are created, perform clustering on trending and non trending seperately. (Monday)
         #TRENDING - TRAIN
 
-    isTrained = False
+    isTrained = True
 
     if isTrained == False:
         num_clust = 3
-        dzwmodel_kit.KMeansClustBasedOnDynamicTimeWrapping(loc_output_TRENDING_tweetrate_TRAIN,num_clust,TREND_TRAIN_tweetsclOutputFilePath,TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath)
+        sample_size = 0
+        #dzwmodel_kit.KMeansClustBasedOnDynamicTimeWrapping(loc_output_TRENDING_tweetrate_TRAIN,num_clust,sample_size,TREND_TRAIN_tweetsclOutputFilePath,TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath)
 
-        #num_clust = 4
-        #dzwmodel_kit.KMeansClustBasedOnDynamicTimeWrapping(loc_output_NON_TRENDING_tweetrate_TRAIN,num_clust,NONTREND_TRAIN_tweetsclOutputFilePath,NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath)
+        num_clust = 6
+        sample_size = 500
+        #dzwmodel_kit.KMeansClustBasedOnDynamicTimeWrapping(loc_output_NON_TRENDING_tweetrate_TRAIN,num_clust,sample_size,NONTREND_TRAIN_tweetsclOutputFilePath,NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath)
 
     #3. Based on clusters, score each test topic against the clusters and then pick the clusters with the minimum distance (Monday)
     dzwmodel_kit.PredictAssignClosestClusterBasedOnDynamicTW(TREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath,NONTREND_TRAIN_tweetsCLUSTER_CENTRIODS_OutputFilePath,loc_output_TRENDING_tweetrate_TEST)

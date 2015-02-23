@@ -10,19 +10,24 @@
 #-------------------------------------------------------------------------------
 
 import helper
+import dzwmodel_kit
+import numpy as np
+import random
+import math
+import matplotlib.pylab as plt
 
-topicsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Raw Data\\trending_topics_2015_0111_to_0125.csv"
+topicsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Modeling\\Cluster_Trends_0111_to_0125_2_week\\Raw Data\\trending_topics_2015_0111_to_0125.csv"
 topicindex = 0
 startdateindex = 1
 
 ListOftweetsInputFilePath = [
-"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step3_reformat_datetime.csv",
-"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\1_Clean_Format_Raw_Data\\test_trending_tweets_2015_0120_to_0125_cleaned_step3_reformat_datetime.csv"]
+"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Modeling\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step3_reformat_datetime.csv",
+"C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Modeling\\Cluster_Trends_0111_to_0125_2_week\\1_Clean_Format_Raw_Data\\test_trending_tweets_2015_0120_to_0125_cleaned_step3_reformat_datetime.csv"]
 
 
 #tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step3_reformat_datetime.csv"
 
-tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0125_2_week\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
+tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Modeling\\Cluster_Trends_0111_to_0125_2_week\\Clusters - 3 clusters 10 iterations with trend smoothing\\Input Files\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
 
 #function ontop because they need to be defined first before main
 
@@ -168,7 +173,15 @@ def CalculateTweetRatesPerInterval(topic_and_tweets,resultsfile):
             else:
                     #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[prev_key]*1.0 - cur_topic_tweets[key]*1.0)/cur_topic_tweets[prev_key] * 1.0)
                     # now feature is % from base. Base assumes low activity, is it below or above the base. If still trending above, mostly likely trending
-                    outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
+                    #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
+
+                    #we wanted to smooth the trends lines. the topics are order in descending time period, where each time period leads up to trending topics. Another way to think about it is this a countdown towards being trended
+                    curr_rate = (cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0
+                    prev_rate = (cur_topic_tweets[prev_key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0
+                    avg_rate = (curr_rate + prev_rate ) /2
+
+                    #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
+                    outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(avg_rate) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
 
             f=open(resultsfile, 'a')
             f.write(outline + "\n")
@@ -183,12 +196,67 @@ def CalculateTweetRatesPerInterval(topic_and_tweets,resultsfile):
 
     #topic_and_tweets.
 
+def SampleTopicAndVisualizeTimesSeriesPlot(tweetsInputFilePath,sample_size):
+     #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
+    data = helper.ImportCSVFileConvertToNumpyArray(tweetsInputFilePath)
+
+    # index 3 is with smoothing, 4 is without smoothing
+    data = data[:,[0,1,3,4]]
+    #reader = csv.reader( open(tweetsInputFilePath) )
+
+    # this gets unique rows?
+    rows, row_pos = np.unique(data[:, 0], return_inverse=True)
+    cols, col_pos = np.unique(data[:, 1], return_inverse=True)
+    rows, row_pos = np.unique(data[:, 0], return_inverse=True)
+    cols, col_pos = np.unique(data[:, 1], return_inverse=True)
+
+    pivot_table = np.zeros((len(rows), len(cols)), dtype = 'f4')
+    #pivot_table = np.zeros((len(rows), len(cols)), dtype=data.dtype)
+    pivot_table_raw = pivot_table
+    pivot_table_raw[row_pos, col_pos] = data[:, 2]
+    data_pivoted = pivot_table
+
+    data_pivoted_colsorted = dzwmodel_kit.Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
+
+##    if sample_size != 0:
+##        data = random.sample(data_pivoted,sample_size)
+
+    for i in range(len(data_pivoted)):
+        plt.plot(data_pivoted[i])
+
+        if i ==20:
+            break
+
+    plt.show()
+
+    #below is for smoothed
+    pivot_table_smooth = pivot_table
+    pivot_table_smooth[row_pos, col_pos] = data[:, 3]
+    data_pivoted = pivot_table_smooth
+
+    data_pivoted_colsorted = dzwmodel_kit.Take2dArrayOrderByColumnHeader(data_pivoted,cols,rows)
+
+##    if sample_size != 0:
+##        data = random.sample(data_pivoted,sample_size)
+
+    for i in range(len(data_pivoted)):
+        plt.plot(data_pivoted[i])
+
+        if i ==20:
+            break
+
+    plt.show()
+
 def main():
     #1. Create loop to iterate through file and get min start time and topic and store this in a dictionary (key is topic and value is start time)
     topics = helper.TakeFileConvertIntoDictionary(topicsInputFilePath,topicindex,startdateindex)
     #topic_and_tweets = IterateTweetsAndCountTweets(tweetsInputFilePath,topics)
     topic_and_tweets = IterateListOfTweetsAndCountTweets(ListOftweetsInputFilePath,topics)
     CalculateTweetRatesPerInterval(topic_and_tweets,tweetsOutputFilePath)
+
+    #next add visualization. This is new after each change. View the results to see how it looks.
+    sample_size = 20
+    SampleTopicAndVisualizeTimesSeriesPlot(tweetsOutputFilePath,sample_size)
 if __name__ == '__main__':
     main()
 

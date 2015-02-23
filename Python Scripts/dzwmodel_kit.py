@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name:        module1
-# Purpose:
+# Purpose:      Over the course, would like to build out a data science kit. Where I can apply different methods to data sets
 #
 # Author:      dwoo57
 #

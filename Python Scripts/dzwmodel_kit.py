@@ -386,6 +386,12 @@ def Predict_k_means_clust(centroids,tweets,groups_dtw,isUseExpWeightedMean,w=5):
 
         return
 
+def CalcLinearInterpolation(firstXvalue,firstYvalue,secondXvalue,secondYvalue, currentXvalue):
+    # Y1 - Y2/ (X1 - X2) * XC
+
+    #return (following_rate - prev_rate)/(prev_interval - following_rate_interval ) * (prev_interval - interval)
+    return (secondYvalue - firstYvalue)/(secondXvalue - firstXvalue ) * (currentXvalue - firstXvalue) + firstYvalue
+
 def PredictAssignClosestClusterBasedOnDynamicTW(tweetsclCentriodsOutputFilePath_trend,tweetsclCentriodsOutputFilePath_nontrend, loc_output_TRENDING_tweetrate_TEST):
 
     #1a Load trending clusters

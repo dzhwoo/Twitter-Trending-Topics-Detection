@@ -27,7 +27,7 @@ ListOftweetsInputFilePath = [
 
 #tweetsInputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Scipts\\Analysis\\Cluster_Trends_0111_to_0119_1week\\test_trending_tweets_015_0111_to_0119_cleaned_step3_reformat_datetime.csv"
 
-tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Modeling\\Cluster_Trends_0111_to_0125_2_week\\Clusters - 3 clusters 10 iterations with trend smoothing\\Input Files\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2.csv"
+tweetsOutputFilePath = "C:\\Users\\dwoo57\\Google Drive\\Career\\Projects\\Trending Topics\\Modeling\\Cluster_Trends_0111_to_0125_2_week\\Clusters - 3 clusters 10 iterations with trend smoothing\\Input Files\\Output_tweets_interval_rates_trending_topics_2015_0111_to_0125_V2_winterpolation.csv"
 
 #function ontop because they need to be defined first before main
 
@@ -196,6 +196,93 @@ def CalculateTweetRatesPerInterval(topic_and_tweets,resultsfile):
 
     #topic_and_tweets.
 
+#3. Calculate tweet rates sames as above. However, when there are 'gaps' in data or nulls, use linear interpolation to estimate tweet rates
+def CalculateTweetRatesPerIntervalWithLinearInterpolation(topic_and_tweets,resultsfile):
+    #topic_tweet_dict ={}
+    for key, value in topic_and_tweets.iteritems():
+        cur_topic = key
+        cur_topic_tweets = topic_and_tweets[cur_topic]
+
+        row_count = 0
+        str_literal = ','
+
+        prev_rate = -99 #This is to check if there were previous values
+
+        #1. Instead of sorting through intervals. This should loop through a fixed list. i.e 121 buckets, where each bucket is 2mins. This is four hours
+        # contined...Made this search in descending over. Countdown to trend, hope makes more intuitive.. 0 is trend detected. 90 is 90 intervals before being detected as trend.
+        for interval in range(121,0,-1):
+
+            #NON - Null treatment:
+            #a. Check if topic has any tweets in this interval. If no tweets, then leave as blank. Zero here signals same as base.
+            # if intervals exist, then use that data
+            if cur_topic_tweets.has_key(interval) == True:
+
+                #b. For the first interval with value, this would be used as the base. Hence, values here should be zero
+                if row_count == 0:
+                        tmp_base_tweet_rate = cur_topic_tweets[interval]
+                        curr_rate = 0
+                        outline = cur_topic + str_literal + str(interval)  + str_literal + str(cur_topic_tweets[interval]) + str_literal + '0' + str_literal + '0'
+                else:
+                        #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[prev_key]*1.0 - cur_topic_tweets[key]*1.0)/cur_topic_tweets[prev_key] * 1.0)
+                        # now feature is % from base. Base assumes low activity, is it below or above the base. If still trending above, mostly likely trending
+                        #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
+
+                        #we wanted to smooth the trends lines. the topics are order in descending time period, where each time period leads up to trending topics. Another way to think about it is this a countdown towards being trended
+                        curr_rate = (cur_topic_tweets[interval]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0
+                        prev_rate = (cur_topic_tweets[prev_interval]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0
+                        avg_rate = (curr_rate + prev_rate ) /2
+
+                        #outline = cur_topic + str_literal + str(key)  + str_literal + str(cur_topic_tweets[key]) + str_literal + str(cur_topic_tweets[prev_key] - cur_topic_tweets[key]) + str_literal + str((cur_topic_tweets[key]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0)
+                        outline = cur_topic + str_literal + str(interval)  + str_literal + str(cur_topic_tweets[interval]) + str_literal + str(curr_rate) + str_literal + str(curr_rate)
+
+                        f=open(resultsfile, 'a')
+                        f.write(outline + "\n")
+                        f.flush()
+                        f.close()
+
+                #keep storing previous interval
+                prev_interval = interval
+                prev_rate = curr_rate
+
+
+            # NULL treatment: here is where we fill in the nulls
+            #d. If the current interval is NULL, then search forward for next point and interpolate between previous and following point
+            else:
+                # If first value in the series ignore. if there has been no previous data then ignore.
+                if prev_rate == -99:
+                    continue
+                # if there has been previous values, then we need to interpolate
+                else:
+
+                    #we have the prev rate but need to search forward for next value
+                    for next_interval in range(interval,0,-1): # since this is base 0, added 1. ie. say interval
+                        if cur_topic_tweets.has_key(next_interval) == True:
+                            following_rate = (cur_topic_tweets[next_interval]*1.0 - tmp_base_tweet_rate * 1.0 )/tmp_base_tweet_rate * 1.0
+                            following_rate_interval = next_interval
+                            # now do interpolation
+                            curr_rate = dzwmodel_kit.CalcLinearInterpolation(prev_interval,prev_rate,following_rate_interval,following_rate,interval)
+
+                            empty_str = ""
+                            # then write out, use in place of smoothing. also insert empty value for current point
+                            outline = cur_topic + str_literal + str(interval)  + str_literal + empty_str + str_literal + str(curr_rate) + str_literal + empty_str
+
+                            f=open(resultsfile, 'a')
+                            f.write(outline + "\n")
+                            f.flush()
+                            f.close()
+
+                            break; # breakout of loop when you find the first value
+                        else:
+                            continue
+
+            #c. Then keep tracked if the prev value and replace when not NULL.
+            row_count = row_count + 1
+
+            if row_count % 10000 ==0:
+                print row_count
+
+    #topic_and_tweets.
+
 def SampleTopicAndVisualizeTimesSeriesPlot(tweetsInputFilePath,sample_size):
      #data = helper.ImportFileConvertToNumpyArray(tweetsInputFilePath,0,',','a10,f4,f4,f4,f4')
     data = helper.ImportCSVFileConvertToNumpyArray(tweetsInputFilePath)
@@ -252,11 +339,12 @@ def main():
     topics = helper.TakeFileConvertIntoDictionary(topicsInputFilePath,topicindex,startdateindex)
     #topic_and_tweets = IterateTweetsAndCountTweets(tweetsInputFilePath,topics)
     topic_and_tweets = IterateListOfTweetsAndCountTweets(ListOftweetsInputFilePath,topics)
-    CalculateTweetRatesPerInterval(topic_and_tweets,tweetsOutputFilePath)
+    #CalculateTweetRatesPerInterval(topic_and_tweets,tweetsOutputFilePath)
+    CalculateTweetRatesPerIntervalWithLinearInterpolation(topic_and_tweets,tweetsOutputFilePath)
 
     #next add visualization. This is new after each change. View the results to see how it looks.
     sample_size = 20
-    SampleTopicAndVisualizeTimesSeriesPlot(tweetsOutputFilePath,sample_size)
+    #SampleTopicAndVisualizeTimesSeriesPlot(tweetsOutputFilePath,sample_size)
 if __name__ == '__main__':
     main()
 
